@@ -493,7 +493,7 @@ namespace RhinoCyclesCore.Database
 				var absol = ModelAbsoluteTolerance;
 				var anglerad = ModelAngleToleranceRadians;
 				var sbb = SceneBoundingBox;
-				sbb.Inflate(0.1);
+				sbb.Inflate(0.5 + float.Epsilon);
 				var brsbb = sbb.ToBrep();
 				List<Brep> parts = new List<Brep>(8);
 
@@ -539,10 +539,19 @@ namespace RhinoCyclesCore.Database
 						Rhino.Geometry.Mesh final = new Rhino.Geometry.Mesh();
 						foreach (var vb in volbrep)
 						{
+							if (!vb.IsValid)
+							{
+								System.Diagnostics.Debug.WriteLine("PROBLEM WITH CLIPPINGVOLUME BREP");
+								continue;
+							}
 							var volmeshes = Rhino.Geometry.Mesh.CreateFromBrep(vb, MeshingParameters.FastRenderMesh);
 
 							foreach (var vm in volmeshes)
 							{
+								if(!vm.IsValid) {
+									System.Diagnostics.Debug.WriteLine("PROBLEM WITH CLIPPING VOLUME MESH");
+									continue;
+								}
 								final.Append(vm);
 							}
 						}
@@ -897,6 +906,8 @@ namespace RhinoCyclesCore.Database
 		{
 			if (_renderEngine.CancelRender) return;
 			RcCore.OutputDebugString($"\tHandleMeshData: {meshdata.Faces.Count}");
+			meshdata.Faces.ConvertQuadsToTriangles();
+			meshdata.RebuildNormals();
 			// Get face indices flattened to an
 			// integer array. The result will be triangulated faces.
 			var findices = meshdata.Faces.ToIntArray(true);
