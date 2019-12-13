@@ -312,6 +312,13 @@ namespace RhinoCyclesCore
 			if (ch < 0) return 0;
 			return ch > 255 ? 255 : ch;
 		}
+		public PixelBuffer GetPixelBuffer(uint sessionId)
+		{
+			var bufferPointer = CSycles.session_get_buffer(Client.Id, sessionId);
+			PixelBuffer pbuffer = new PixelBuffer(bufferPointer);
+			return pbuffer;
+		}
+
 
 		/// <summary>
 		/// Update the RenderWindow or RenderBitmap with the updated tile from
@@ -340,6 +347,12 @@ namespace RhinoCyclesCore
 					if (channel != null)
 					{
 						var rect = new Rectangle((int)tx, (int)ty, (int)tw, (int)th);
+						if(passtype == PassType.Combined) {
+							//Session.BufferInfo(out uint bsize, out uint bstride);
+							PixelBuffer pb = GetPixelBuffer(sessionId);
+							channel.SetValues(rect, rect.Size, pb);
+						}
+						/*
 						for (var x = 0; x < (int)tw; x++)
 						{
 							for (var y = 0; y < (int)th; y++)
@@ -373,6 +386,7 @@ namespace RhinoCyclesCore
 								}
 							}
 						}
+						*/
 						RenderWindow.InvalidateArea(rect);
 					}
 				}

@@ -61,9 +61,6 @@ namespace RhinoCyclesCore.RenderEngines
 
 		public void SignalUpdate(int sample)
 		{
-			if (sample > 10 && sample % 50 != 0 && (sample + 2) < PreviewSamples) 
-				return;
-
 			if (sample > 1 && m_sample_count != sample)
 			{
 				PreviewEventArgs.PreviewNotifier.NotifyIntermediateUpdate(RenderWindow);
@@ -89,7 +86,7 @@ namespace RhinoCyclesCore.RenderEngines
 			cyclesEngine.PreviewSamples = samples;
 
 			#region pick a render device
-			var renderDevice = Device.Default;
+			var renderDevice = RcCore.It.EngineSettings.RenderDevice; // Device.Default;
 
 			if (RcCore.It.EngineSettings.Verbose) sdd.WriteLine(
 				$"Using device {renderDevice.Name + " " + renderDevice.Description}");
@@ -104,10 +101,10 @@ namespace RhinoCyclesCore.RenderEngines
 				Samples = samples,
 				TileSize = new Size(16, 16),
 				TileOrder = TileOrder.HilbertSpiral,
-				Threads = threads,
+				Threads = 0,
 				ShadingSystem = ShadingSystem.SVM,
 				SkipLinearToSrgbConversion = true,
-				DisplayBufferLinear = true,
+				DisplayBufferLinear = false,
 				Background = true,
 				ProgressiveRefine = true,
 				Progressive = true,
