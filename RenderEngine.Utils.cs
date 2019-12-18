@@ -70,9 +70,9 @@ namespace RhinoCyclesCore
 			if(render_device.IsOptix) {
 				bvhLayout = BvhLayout.OptiX;
 			}
-			else if (render_device.IsCpu) {
+			/*else if (render_device.IsCpu) {
 				bvhLayout = BvhLayout.Embree;
-			}
+			}*/
 			var scene_params = new SceneParameters(client, ShadingSystem.SVM, BvhType.Static, false, bvhLayout, false);
 			#endregion
 

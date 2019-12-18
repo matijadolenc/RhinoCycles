@@ -68,7 +68,7 @@ namespace RhinoCycles
 
 				RcCore.It.DataUserPath = userPath;
 
-				CSycles.path_init(RcCore.It.KernelPath, RcCore.It.DataUserPath);
+				/*CSycles.path_init(RcCore.It.KernelPath, RcCore.It.DataUserPath);
 
 				if(RhinoApp.RunningOnVMWare()) {
 					CSycles.debug_set_opencl_device_type(0);
@@ -77,7 +77,7 @@ namespace RhinoCycles
 				}
 				CSycles.debug_set_opencl_kernel(RcCore.It.EngineSettings.OpenClKernelType);
 				CSycles.debug_set_opencl_single_program(RcCore.It.EngineSettings.OpenClSingleProgram);
-				CSycles.debug_set_cpu_kernel(RcCore.It.EngineSettings.CPUSplitKernel);
+				CSycles.debug_set_cpu_kernel(RcCore.It.EngineSettings.CPUSplitKernel);*/
 
 				RcCore.It.Initialised = false;
 				AsyncInitialise();

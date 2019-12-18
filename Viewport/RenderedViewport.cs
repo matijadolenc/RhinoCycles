@@ -253,7 +253,7 @@ namespace RhinoCycles.Viewport
 			_cycles.Synchronized += CyclesSynchronized;
 			_cycles.PassRendered += CyclesPassRendered;
 			_cycles.Database.LinearWorkflowChanged += DatabaseLinearWorkflowChanged;
-			_cycles.UploadProgress += _cycles_UploadProgress;
+			//_cycles.UploadProgress += _cycles_UploadProgress;
 
 			ViewportSettingsChanged += _cycles.ViewportSettingsChangedHandler;
 			_cycles.CurrentViewportSettingsRequested += _cycles_CurrentViewportSettingsRequested;
