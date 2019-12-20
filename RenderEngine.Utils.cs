@@ -72,7 +72,8 @@ namespace RhinoCyclesCore
 			}
 			/*else if (render_device.IsCpu) {
 				bvhLayout = BvhLayout.Embree;
-			}*/
+			}
+			*/
 			var scene_params = new SceneParameters(client, ShadingSystem.SVM, BvhType.Static, false, bvhLayout, false);
 			#endregion
 
@@ -110,12 +111,12 @@ namespace RhinoCyclesCore
 				}
 				#endregion
 			};
+			#endregion
 
 			scene.Film.SetFilter(FilterType.Gaussian, 1.5f);
 			scene.Film.Exposure = 1.0f;
 			scene.Film.Update();
 
-			#endregion
 
 			#region background shader
 
@@ -145,7 +146,6 @@ namespace RhinoCyclesCore
 			#endregion
 
 			session.Scene = scene;
-			//return scene;
 		}
 
 		static public float4 CreateFloat4(double x, double y, double z) { return new float4((float)x, (float)y, (float)z, 0.0f); }

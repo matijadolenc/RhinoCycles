@@ -30,13 +30,12 @@ namespace RhinoCyclesCore
 	}
 	partial class RenderEngine
 	{
-		//public event EventHandler<UploadProgressEventArgs> UploadProgress;
+		public event EventHandler<UploadProgressEventArgs> UploadProgress;
 		/// <summary>
 		/// Main entry point for uploading data to Cycles.
 		/// </summary>
 		protected bool UploadData()
 		{
-#if OHO
 			if (CancelRender) return false;
 
 			Database.UploadDisplayPipelineAttributesChanges();
@@ -105,7 +104,6 @@ namespace RhinoCyclesCore
 			Database.ResetChangeQueue();
 
 			if (CancelRender) return false;
-#endif
 			return true;
 		}
 	}

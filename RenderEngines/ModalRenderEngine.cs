@@ -124,7 +124,6 @@ namespace RhinoCyclesCore.RenderEngines
 						break;
 				}
 			}
-
 			requestedSamples = Attributes?.RealtimeRenderPasses ?? engineSettings.Samples;
 			requestedSamples = (requestedSamples < 1) ? engineSettings.Samples : requestedSamples;
 			cyclesEngine.TriggerCurrentViewportSettingsRequested();
