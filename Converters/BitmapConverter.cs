@@ -139,12 +139,12 @@ namespace RhinoCyclesCore.Converters
 			var isFloat = renderTexture.IsHdrCapable();
 			var isLinear = renderTexture.IsLinear();
 			var isImageBased = renderTexture.IsImageBased();
-			var alternateob= renderTexture.GetParameter("mirror-alternate-tiles");
 			var alternate = false;
 
-			if (alternateob != null)
-			{
-				alternate = Convert.ToBoolean(alternateob);
+			using (var alternateob = renderTexture.GetParameter("mirror-alternate-tiles") as IDisposable) {
+				if (alternateob != null) {
+					alternate = Convert.ToBoolean(alternateob as IConvertible);
+				}
 			}
 
 			if (isFloat)
@@ -259,14 +259,14 @@ namespace RhinoCyclesCore.Converters
 
 		static private TextureEnvironmentMappingMode get_environment_mapping(RenderEnvironment rm, RenderTexture renderTexture)
 		{
-			var s = rm.GetParameter("background-projection") as IConvertible;
 			string proj = "";
-			if (s == null) {
-				SimulatedEnvironment simenv = rm.SimulateEnvironment(true);
-				proj = SimulatedEnvironment.StringFromProjection(simenv.BackgroundProjection);
-			}
-			else {
-				proj = Convert.ToString(s, CultureInfo.InvariantCulture);
+			using (var s = rm.GetParameter("background-projection") as IDisposable) {
+				if (s == null) {
+					SimulatedEnvironment simenv = rm.SimulateEnvironment(true);
+					proj = SimulatedEnvironment.StringFromProjection(simenv.BackgroundProjection);
+				} else {
+					proj = Convert.ToString(s, CultureInfo.InvariantCulture);
+				}
 			}
 
 			switch (proj) {
@@ -324,20 +324,27 @@ namespace RhinoCyclesCore.Converters
 			var rep = renderTexture.GetRepeat();
 			var tra = renderTexture.GetOffset();
 			var rId = renderTexture.RenderHashExclude(TextureRenderHashFlags.ExcludeLocalMapping, "azimuth;altitude;multiplier;rdk-texture-repeat;rdk-texture-offset;rdk-texture-rotation;rdk-texture-adjust-multiplier");
-			var azimob = renderTexture.GetParameter("azimuth");
-			var altob = renderTexture.GetParameter("altitude");
-			var multob = renderTexture.GetParameter("multiplier");
-			var multadjob = renderTexture.GetParameter("rdk-texture-adjust-multiplier");
 			var mult = 1.0f;
 			var multadj = 1.0f;
+			var azi = 0.0;
+			var alti = 0.0;
 
-			if (multob != null)
-			{
-				mult = (float)Convert.ToDouble(multob);
-			}
-			if (multadjob != null)
-			{
-				multadj = (float)Convert.ToDouble(multadjob);
+			using (IDisposable azimob = renderTexture.GetParameter("azimuth") as IDisposable,
+						altob = renderTexture.GetParameter("altitude") as IDisposable,
+						multob = renderTexture.GetParameter("multiplier") as IDisposable,
+						multadjob = renderTexture.GetParameter("rdk-texture-adjust-multiplier") as IDisposable) {
+				if (azimob != null) {
+					azi = Convert.ToDouble(azimob);
+				}
+				if (altob != null) {
+					alti = Convert.ToDouble(altob);
+				}
+				if (multob != null) {
+					mult = (float)Convert.ToDouble(multob);
+				}
+				if (multadjob != null) {
+					multadj = (float)Convert.ToDouble(multadjob);
+				}
 			}
 
 			var restore = !multadj.FuzzyEquals(1.0f);
@@ -412,9 +419,7 @@ namespace RhinoCyclesCore.Converters
 			teximg.EnvProjectionMode = projection;
 			teximg.ProjectionMode = TextureProjectionMode.EnvironmentMap;
 
-			if ((int)projection != 4 && azimob != null && altob != null) {
-				var azi = Convert.ToDouble(azimob);
-				var alti = Convert.ToDouble(altob);
+			if ((int)projection != 4) {
 
 				rhinotfm.M00 = tra.X;
 				rhinotfm.M01 = tra.Y;

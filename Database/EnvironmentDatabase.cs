@@ -115,9 +115,10 @@ namespace RhinoCyclesCore.Database
 					_cqBackground.BackgroundEnvironment = environment;
 					if (environment != null)
 					{
-						var s = environment.GetParameter("background-projection") as IConvertible;
-						var proj = Convert.ToString(s, CultureInfo.InvariantCulture);
-						_cqBackground.PlanarProjection = proj.Equals("planar");
+						using (var s = environment.GetParameter("background-projection") as IDisposable) {
+							var proj = Convert.ToString(s, CultureInfo.InvariantCulture);
+							_cqBackground.PlanarProjection = proj.Equals("planar");
+						}
 					} else
 					{
 						_cqBackground.PlanarProjection = false;

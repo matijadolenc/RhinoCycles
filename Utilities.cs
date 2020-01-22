@@ -159,11 +159,9 @@ namespace RhinoCyclesCore
 			var repeat = rt.GetWrapType() == TextureWrapType.Repeating;
 
 			var alternate = false;
-			{
-				var alternateob = rt.GetParameter("mirror-alternate-tiles");
-				if (alternateob != null)
-				{
-					alternate = Convert.ToBoolean(alternateob);
+			using (var alternateob = rt.GetParameter("mirror-alternate-tiles") as IDisposable) {
+				if (alternateob != null) {
+					alternate = Convert.ToBoolean(alternateob as IConvertible);
 				}
 			}
 
