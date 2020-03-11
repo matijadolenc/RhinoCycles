@@ -302,8 +302,6 @@ namespace RhinoCyclesCore
 			RenderWindow?.SetProgress(status, progress);
 
 			TriggerStatusTextUpdated(new StatusTextEventArgs(status, progress, RenderedSamples>0 ? (RenderedSamples+1) : RenderedSamples));
-
-			//if(!m_interactive) CheckFlushQueue();
 		}
 
 		/// <summary>
@@ -315,90 +313,6 @@ namespace RhinoCyclesCore
 		{
 			if (ch < 0) return 0;
 			return ch > 255 ? 255 : ch;
-		}
-
-		/// <summary>
-		/// Update the RenderWindow or RenderBitmap with the updated tile from
-		/// Cycles render progress.
-		/// </summary>
-		/// <param name="sessionId"></param>
-		/// <param name="tx"></param>
-		/// <param name="ty"></param>
-		/// <param name="tw"></param>
-		/// <param name="th"></param>
-		public void DisplayBuffer(uint sessionId, uint tx, uint ty, uint tw, uint th, PassType passtype, ref float[] pixels, int pixlen, int stride)
-		{
-		#if meh
-			if (IsStopped) return;
-			(var _, var height) =  RenderDimension;
-			//var width = RenderDimension.Width;
-			//var height = RenderDimension.Height;
-			if (RenderWindow != null)
-			{
-				using (RenderWindow.Channel channel = RenderWindow.OpenChannel(RenderWindow.StandardChannels.RGBA),
-					nx = RenderWindow.OpenChannel(RenderWindow.StandardChannels.NormalX),
-					ny = RenderWindow.OpenChannel(RenderWindow.StandardChannels.NormalY),
-					nz = RenderWindow.OpenChannel(RenderWindow.StandardChannels.NormalZ),
-					depth = RenderWindow.OpenChannel(RenderWindow.StandardChannels.DistanceFromCamera)
-					)
-				{
-					if (channel != null)
-					{
-						var rect = new Rectangle((int)tx, (int)(RenderDimension.Height - ty - th), (int)tw, (int)th);
-
-						if (channel != null && passtype == PassType.Combined)
-						{
-							var pixels_dim = new Size((int)tw, (int)th);
-
-							var pixels_flipped = new float[tw * th * stride];
-							for (int y = 0; y < th; ++y)
-							{
-								long width_elems = tw * stride;
-								Array.Copy(pixels, y * width_elems, pixels_flipped, (th - y - 1) * width_elems, width_elems);
-							}
-
-							GCHandle pixels_handle = GCHandle.Alloc(pixels_flipped, GCHandleType.Pinned);
-							PixelBuffer buffer = new PixelBuffer(pixels_handle.AddrOfPinnedObject());
-
-							channel.SetValues(rect, pixels_dim, buffer);
-
-							pixels_handle.Free();
-						}
-						else
-						{
-							for (var x = 0; x < (int)tw; x++)
-							{
-								for (var y = 0; y < (int)th; y++)
-								{
-									var i = y * tw * stride + x * stride;
-									var r = pixels[i];
-									var g = stride > 1 ? pixels[i + 1] : 1.0f;
-									var b = stride > 2 ? pixels[i + 2] : 1.0f;
-									if (stride == 1)
-									{
-										g = b = r;
-									}
-
-									var cox = (int)tx + x;
-									var coy = RenderDimension.Height - ((int)ty + y + 1);
-									if (nx != null && ny != null && nz != null && passtype == PassType.Normal)
-									{
-										nx.SetValue(cox, coy, r);
-										ny.SetValue(cox, coy, g);
-										nz.SetValue(cox, coy, b);
-									}
-									else if (depth != null && passtype == PassType.Depth)
-									{
-										depth.SetValue(cox, coy, r);
-									}
-								}
-							}
-						}
-						RenderWindow.InvalidateArea(rect);
-					}
-				}
-			}
-		#endif
 		}
 
 		public void BlitPixelsToRenderWindowChannel(float alpha)
@@ -423,36 +337,6 @@ namespace RhinoCyclesCore
 		public static void LoggerCallback(string msg)
 		{
 			sdd.WriteLine($"DBG: {msg}");
-		}
-
-		/// <summary>
-		/// Handle write render tile callback
-		/// </summary>
-		/// <param name="sessionId"></param>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="w"></param>
-		/// <param name="h"></param>
-		/// <param name="depth"></param>
-		public void WriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-			/*if (IsStopped || passtype!=PassType.Combined) return;
-			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);*/
-		}
-
-		/// <summary>
-		/// Handle update render tile callback
-		/// </summary>
-		/// <param name="sessionId"></param>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <param name="w"></param>
-		/// <param name="h"></param>
-		/// <param name="depth"></param>
-		public void UpdateRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-			if (IsStopped) return;
-			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
 		}
 
 		/// <summary>

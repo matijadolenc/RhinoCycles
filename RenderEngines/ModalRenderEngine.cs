@@ -50,10 +50,10 @@ namespace RhinoCyclesCore.RenderEngines
 			#region create callbacks for Cycles
 
 			m_update_callback = UpdateCallback;
-			m_update_render_tile_callback = null; // UpdateRenderTileCallback;
-			m_write_render_tile_callback = null; // RenderWindowWriteRenderTileCallback;
+			m_update_render_tile_callback = null;
+			m_write_render_tile_callback = null;
 			m_test_cancel_callback = null;
-			m_display_update_callback = null; // DisplayUpdateHandler;
+			m_display_update_callback = null;
 
 			CSycles.log_to_stdout(false);
 
@@ -69,21 +69,9 @@ namespace RhinoCyclesCore.RenderEngines
 		{
 			capturing = true;
 			m_update_render_tile_callback = null;
-			//m_update_callback = null;
 			m_logger_callback = null;
-			m_write_render_tile_callback = null; // ModalWriteRenderTileCallback;
+			m_write_render_tile_callback = null;
 		}
-
-		/*public void ModalWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-			if (!IsRendering || (int)sample<(maxSamples) || passtype!=PassType.Combined) return;
-			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
-		}
-		public void RenderWindowWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-			if (!IsRendering) return;
-			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
-		}*/
 
 		private int maxSamples;
 		public int requestedSamples { get; set; }
@@ -183,8 +171,6 @@ namespace RhinoCyclesCore.RenderEngines
 				// lets first reset session
 				int cycles_full_y = FullSize.Height - BufferRectangle.Bottom;
 				cyclesEngine.Session.Reset(size.Width, size.Height, requestedSamples, BufferRectangle.X, cycles_full_y, FullSize.Width, FullSize.Height);
-				// then reset scene
-				//cyclesEngine.Session.Scene.Reset();
 				// and actually start
 				bool stillrendering = true;
 				var throttle = Math.Max(0, engineSettings.ThrottleMs);

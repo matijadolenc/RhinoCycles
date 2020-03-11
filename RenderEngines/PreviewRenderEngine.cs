@@ -40,25 +40,13 @@ namespace RhinoCyclesCore.RenderEngines
 
 #region create callbacks for Cycles
 			m_update_callback = UpdateCallback;
-			m_update_render_tile_callback = null; // PreviewRendererUpdateRenderTileCallback;
-			m_write_render_tile_callback = null; // PreviewRendererWriteRenderTileCallback;
+			m_update_render_tile_callback = null;
+			m_write_render_tile_callback = null;
 			m_test_cancel_callback = TestCancel;
 
 			CSycles.log_to_stdout(false);
 #endregion
 		}
-		#if oho
-		public void PreviewRendererUpdateRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-		}
-
-		public void PreviewRendererWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
-		{
-			/*if (IsStopped) return;
-			
-		  DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);*/
-	  }
-		#endif
 
 		public void SignalUpdate(int sample)
 		{
@@ -137,8 +125,6 @@ namespace RhinoCyclesCore.RenderEngines
 
 			// lets first reset session
 			cyclesEngine.Session.Reset(size.Width, size.Height, samples, 0, 0, size.Width, size.Height);
-			// then reset scene
-			//cyclesEngine.Session.Scene.Reset();
 			// and actually start
 			bool stillrendering = true;
 			var throttle = Math.Max(0, RcCore.It.EngineSettings.ThrottleMs);
