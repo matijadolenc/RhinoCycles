@@ -40,24 +40,25 @@ namespace RhinoCyclesCore.RenderEngines
 
 #region create callbacks for Cycles
 			m_update_callback = UpdateCallback;
-			m_update_render_tile_callback = PreviewRendererUpdateRenderTileCallback;
-			m_write_render_tile_callback = PreviewRendererWriteRenderTileCallback;
+			m_update_render_tile_callback = null; // PreviewRendererUpdateRenderTileCallback;
+			m_write_render_tile_callback = null; // PreviewRendererWriteRenderTileCallback;
 			m_test_cancel_callback = TestCancel;
 
 			CSycles.log_to_stdout(false);
 #endregion
 		}
-
+		#if oho
 		public void PreviewRendererUpdateRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
 		{
 		}
 
 		public void PreviewRendererWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
 		{
-			if (IsStopped) return;
+			/*if (IsStopped) return;
 			
-		  DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
+		  DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);*/
 	  }
+		#endif
 
 		public void SignalUpdate(int sample)
 		{
@@ -102,13 +103,13 @@ namespace RhinoCyclesCore.RenderEngines
 			{
 				Experimental = false,
 				Samples = samples,
-				TileSize = new Size(16, 16),
-				TileOrder = TileOrder.HilbertSpiral,
+				TileSize = new Size(16, 16), // renderDevice.IsGpu ? size : new Size(16, 16),
+				TileOrder = TileOrder.Center,
 				Threads = threads,
 				ShadingSystem = ShadingSystem.SVM,
 				SkipLinearToSrgbConversion = true,
 				DisplayBufferLinear = true,
-				Background = true,
+				Background = false,
 				ProgressiveRefine = true,
 				Progressive = true,
 				PixelSize = 1,
@@ -129,13 +130,15 @@ namespace RhinoCyclesCore.RenderEngines
 			// main render loop
 			cyclesEngine.Database.Flush();
 			cyclesEngine.UploadData();
+			cyclesEngine.Database?.Dispose();
+			cyclesEngine.Database = null;
 
 			cyclesEngine.Session.PrepareRun();
 
 			// lets first reset session
 			cyclesEngine.Session.Reset(size.Width, size.Height, samples, 0, 0, size.Width, size.Height);
 			// then reset scene
-			cyclesEngine.Session.Scene.Reset();
+			//cyclesEngine.Session.Scene.Reset();
 			// and actually start
 			bool stillrendering = true;
 			var throttle = Math.Max(0, RcCore.It.EngineSettings.ThrottleMs);
@@ -145,8 +148,10 @@ namespace RhinoCyclesCore.RenderEngines
 				{
 					var sample = cyclesEngine.Session.Sample();
 					stillrendering = sample > -1;
+					cyclesEngine.Session.BufferDrawSet();
+					cyclesEngine.BlitPixelsToRenderWindowChannel(0.0f);
 					cyclesEngine.SignalUpdate(sample);
-					Thread.Sleep(throttle);
+					if(throttle > 0 ) Thread.Sleep(throttle);
 				}
 				else
 				{
@@ -159,10 +164,6 @@ namespace RhinoCyclesCore.RenderEngines
 			cyclesEngine.Session.EndRun();
 			// we're done now, so lets clean up our session.
 			cyclesEngine.Session.Destroy();
-
-			// get rid of our change queue
-			cyclesEngine.Database?.Dispose();
-			cyclesEngine.Database = null;
 		}
 
 	}

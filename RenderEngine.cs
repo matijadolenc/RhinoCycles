@@ -328,6 +328,7 @@ namespace RhinoCyclesCore
 		/// <param name="th"></param>
 		public void DisplayBuffer(uint sessionId, uint tx, uint ty, uint tw, uint th, PassType passtype, ref float[] pixels, int pixlen, int stride)
 		{
+		#if meh
 			if (IsStopped) return;
 			(var _, var height) =  RenderDimension;
 			//var width = RenderDimension.Width;
@@ -397,6 +398,22 @@ namespace RhinoCyclesCore
 					}
 				}
 			}
+		#endif
+		}
+
+		public void BlitPixelsToRenderWindowChannel(float alpha)
+		{
+			IntPtr pixel_buffer = Session.GetPixelBuffer();
+
+			if(pixel_buffer != IntPtr.Zero)
+			{
+				using (var rgba = RenderWindow.OpenChannel(Rhino.Render.RenderWindow.StandardChannels.RGBA))
+				{
+					var rect = new Rectangle(0, 0, RenderWindow.Size().Width, RenderWindow.Size().Height);
+					Rhino.Render.PixelBuffer pb = new Rhino.Render.PixelBuffer(pixel_buffer);
+					rgba.SetValues(rect, rect.Size, pb);
+				}
+			}
 		}
 
 		/// <summary>
@@ -419,8 +436,8 @@ namespace RhinoCyclesCore
 		/// <param name="depth"></param>
 		public void WriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
 		{
-			if (IsStopped || passtype!=PassType.Combined) return;
-			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
+			/*if (IsStopped || passtype!=PassType.Combined) return;
+			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);*/
 		}
 
 		/// <summary>

@@ -50,8 +50,8 @@ namespace RhinoCyclesCore.RenderEngines
 			#region create callbacks for Cycles
 
 			m_update_callback = UpdateCallback;
-			m_update_render_tile_callback = UpdateRenderTileCallback;
-			m_write_render_tile_callback = RenderWindowWriteRenderTileCallback;
+			m_update_render_tile_callback = null; // UpdateRenderTileCallback;
+			m_write_render_tile_callback = null; // RenderWindowWriteRenderTileCallback;
 			m_test_cancel_callback = null;
 			m_display_update_callback = null; // DisplayUpdateHandler;
 
@@ -71,10 +71,10 @@ namespace RhinoCyclesCore.RenderEngines
 			m_update_render_tile_callback = null;
 			//m_update_callback = null;
 			m_logger_callback = null;
-			m_write_render_tile_callback = ModalWriteRenderTileCallback;
+			m_write_render_tile_callback = null; // ModalWriteRenderTileCallback;
 		}
 
-		public void ModalWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
+		/*public void ModalWriteRenderTileCallback(uint sessionId, uint x, uint y, uint w, uint h, uint sample, uint depth, PassType passtype, float[] pixels, int pixlen)
 		{
 			if (!IsRendering || (int)sample<(maxSamples) || passtype!=PassType.Combined) return;
 			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
@@ -83,7 +83,7 @@ namespace RhinoCyclesCore.RenderEngines
 		{
 			if (!IsRendering) return;
 			DisplayBuffer(sessionId, x, y, w, h, passtype, ref pixels, pixlen, (int)depth);
-		}
+		}*/
 
 		private int maxSamples;
 		public int requestedSamples { get; set; }
@@ -146,8 +146,9 @@ namespace RhinoCyclesCore.RenderEngines
 				TileOrder = TileOrder.Center,
 				Threads = (uint)(renderDevice.IsGpu ? 0 : engineSettings.Threads),
 				ShadingSystem = ShadingSystem.SVM,
-				Background = true,
-				DisplayBufferLinear = false,
+				SkipLinearToSrgbConversion = true,
+				DisplayBufferLinear = true,
+				Background = false,
 				ProgressiveRefine = true,
 				Progressive = true,
 				PixelSize = 1,
@@ -192,10 +193,17 @@ namespace RhinoCyclesCore.RenderEngines
 					if (cyclesEngine.IsRendering)
 					{
 						stillrendering = cyclesEngine.Session.Sample() > -1;
+						if (!capturing)
+						{
+							cyclesEngine.BlitPixelsToRenderWindowChannel(0.0f);
+							cyclesEngine.RenderWindow.Invalidate();
+						}
 					}
 					Thread.Sleep(throttle);
 					if (cyclesEngine.IsStopped) break;
 				}
+				cyclesEngine.BlitPixelsToRenderWindowChannel(0.0f);
+				cyclesEngine.RenderWindow.Invalidate();
 
 				cyclesEngine.Session.EndRun();
 			}

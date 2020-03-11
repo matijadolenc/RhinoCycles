@@ -113,20 +113,6 @@ namespace RhinoCyclesCore.RenderEngines
 		/// </summary>
 		public event EventHandler<PassRenderedEventArgs> PassRendered;
 
-		public void DrawOpenGl(float alpha)
-		{
-			IntPtr pixel_buffer = Session.GetPixelBuffer();
-
-			if(pixel_buffer != IntPtr.Zero)
-			{
-				using (var rgba = RenderWindow.OpenChannel(Rhino.Render.RenderWindow.StandardChannels.RGBA))
-				{
-					var rect = new Rectangle(0, 0, RenderWindow.Size().Width, RenderWindow.Size().Height);
-					Rhino.Render.PixelBuffer pb = new Rhino.Render.PixelBuffer(pixel_buffer);
-					rgba.SetValues(rect, rect.Size, pb);
-				}
-			}
-		}
 
 		private bool UsingOpenGl { get; set; }
 
